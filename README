@@ -75,9 +75,4 @@ TEST COMMANDS:
 		bg, then we could see it REALLY run in background
 		but couldnot make it to foreground.
 
-POSTSCRIPT:
-	Thanks to this project, it make me practice a lot.
-	still have a loooong way to go though.
-	It's fun to implement it with C++ class,
-	but the running efficiency is really a little slow in my implementation...
 
