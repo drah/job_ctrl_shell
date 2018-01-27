@@ -1,0 +1,83 @@
+COMPILE and EXECUTE:
+	make
+	./jcsh
+
+DECRIPTIONS:
+	I tried to implement all the requirements(basic+optional).
+	Almost all the functionality WORKS(SEE TEST COMMANDS below).
+	Except that after typing cmd &(comes with background mode)
+	I could see it running in background, 
+	but I couldnot use fg to make it run in foreground.
+	(oppositely, typing cmd(comes with foreground mode) 
+	 then ctrl+z make it background,
+	 could use fg to make it foreground)
+	
+	NOTE:
+		(1) for simplicity, I format the command like the following:
+			proc1 | proc2 | ... | procN < redirIN > redirOUT (&)
+		    (blanks are required between all the processes and | > <.)
+		(2) my 'bg' is used to list all the commands in history.
+
+	ARCHETECTURE:
+		           (cmd in)    (parse)
+		job_ctrl_sh -----> job ------> proc
+		   (1)       fork  (2)  fork   (3)
+	
+		MAIN THINGS TO DO:
+		(1) : as the controlling terminal.
+		(2) : parse the cmd and fork for each proc.
+		(3) : exec the cmd passed in.
+
+TEST COMMANDS:
+	[OK] ls -la
+		single command works.
+	[OK] sleep 10
+		handle the signals:
+		ctrl+z would make shell in foreground with sleep 10 run in background.
+		ctrl+c wouldn't terminate them.
+	[OK] ls -la > /tmp/x
+		redirect out:
+		output to /tmp/x, use cat /tmp/x to see the results.
+	[OK] cat < /etc/passwd
+		redirect in:
+		use /etc/passwd as input, output to the terminal.
+	[OK] less /etc/passwd
+		foreground and background:
+		less /etc/passwd
+		then ctrl+z to make it run in background
+		type fg to make it foreground again
+	[OK] cat /etc/passwd | cat | less
+		pipeline works.
+	[OK] ps -o pid,sid,pgid,ppid,cmd | cat | cat | tr A-Z a-z
+		process group:
+		processes in the job contains the same pgid.
+	[OK] printenv
+		export abc=def, then printenv:
+		we could see abc=def among the environment variables.
+		unset abc, then printenv:
+		we could see abc has been removed in the list.
+	[OK] ls *
+		expand the regular expression:
+		I replace "*" with ".*", then use regcomp to compile.
+		Search all the filenames in current directory,
+		and regexec with the compiled regex.
+		If completely match (match_length == filename_length)
+		then take the matched filename.
+	[OK] ls ?
+		expand the regular expression:
+		I replace "?" with ".", then do the same as the above one.
+	[OK] less /etc/passwd
+		job control:
+		type a command, then use ctrl+z, fg.
+		make jobs transmit between foreground and background.
+	[? ] less /etc/passwd &
+		job control:
+		bg, then we could see it REALLY run in background
+		but couldnot make it to foreground.
+
+POSTSCRIPT:
+	Thanks to this project, it make me practice a lot.
+	still have a loooong way to go though.
+	It's fun to implement it with C++ class,
+	but the running efficiency is really a little slow in my implementation...
+
